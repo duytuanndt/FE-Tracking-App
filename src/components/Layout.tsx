@@ -1,12 +1,16 @@
-"use client"
+'use client';
 
-import type React from "react"
+import type React from 'react';
 
-import { Toaster } from "@/components/ui/sonner"
-import { useIsMobile } from "../hooks/use-mobile"
-import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar"
-import { AppSidebar } from "./AppSidebar"
-import { Separator } from "@/components/ui/separator"
+import { Toaster } from '@/components/ui/sonner';
+import { useIsMobile } from '../hooks/use-mobile';
+import {
+  SidebarProvider,
+  SidebarInset,
+  SidebarTrigger,
+} from '@/components/ui/sidebar';
+import { AppSidebar } from './AppSidebar';
+import { Separator } from '@/components/ui/separator';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -14,14 +18,14 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb"
+} from '@/components/ui/breadcrumb';
 
 interface LayoutProps {
-  children: React.ReactNode
+  children: React.ReactNode;
 }
 
 export function Layout({ children }: LayoutProps) {
-  const isMobile = useIsMobile()
+  const isMobile = useIsMobile();
 
   return (
     <SidebarProvider>
@@ -48,5 +52,5 @@ export function Layout({ children }: LayoutProps) {
       </SidebarInset>
       <Toaster />
     </SidebarProvider>
-  )
+  );
 }
