@@ -33,12 +33,10 @@ export const useAndroid = () => {
     enabled: !!payload.from && !!payload.to, // Only fetch when both dates are provided
   });
 
-  console.log('data', data?.subDetail);
-
   const filteredData: any = useMemo(() => {
-    if (!data) return [];
+    if (!data || !Array.isArray((data as any)?.data)) return [];
 
-    return data?.data.filter((log: any) => {
+    return ((data as any)?.data ?? []).filter((log: any) => {
       const matchesCountry =
         countryFilter === 'all' || log.countryOrRegion === countryFilter;
       const matchesPurchase =
@@ -52,7 +50,7 @@ export const useAndroid = () => {
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
     return filteredData.slice(startIndex, startIndex + ITEMS_PER_PAGE);
   }, [filteredData, currentPage]);
-  console.log('paginatedData', paginatedData);
+  // console.log('paginatedData', paginatedData);
 
   const totalPages = Math.ceil(filteredData.length / ITEMS_PER_PAGE);
 

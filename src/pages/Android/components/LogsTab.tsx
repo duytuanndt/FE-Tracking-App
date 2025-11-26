@@ -6,6 +6,7 @@ import AppFilters from '@/components/AppFilter';
 import { mockAndroidLogs } from '@/mocks/androidMock';
 
 interface LogsTabProps {
+  isLoading: boolean;
   appCodeFilter: string;
   setAppCodeFilter: (value: string) => void;
   countryFilter: string;
@@ -30,6 +31,7 @@ interface LogsTabProps {
 }
 
 export function LogsTab({
+  isLoading,
   appCodeFilter,
   setAppCodeFilter,
   countryFilter,
@@ -96,6 +98,7 @@ export function LogsTab({
         </CardHeader>
         <CardContent>
           <LogsTable
+            isLoading={isLoading}
             data={paginatedData}
             getPurchaseBadgeVariant={getPurchaseBadgeVariant}
           />

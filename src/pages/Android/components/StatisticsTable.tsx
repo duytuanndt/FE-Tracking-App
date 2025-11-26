@@ -143,8 +143,8 @@ export function StatisticsTable({ data, isLoading, subDetail }: StatisticsTableP
                                 key={`${detail.appID}-${detail.purchase}`}
                                 className="flex flex-col items-start p-3 bg-background rounded-lg border"
                               >
-                                <span className="text-xs text-muted-foreground mb-1">
-                                  {detail.purchase.toLocaleUpperCase()}
+                                <span className="text-xs text-muted-foreground mb-1 font-bold">
+                                  {detail.purchase.toUpperCase()}
                                 </span>
                                 <span className="text-lg font-semibold">
                                   {detail.count}

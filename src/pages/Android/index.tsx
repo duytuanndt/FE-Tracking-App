@@ -30,19 +30,20 @@ export function AndroidLog() {
 
   const getPurchaseBadgeVariant = (purchaseType: string) => {
     switch (purchaseType) {
-      case 'Premium Subscription':
-        return 'default';
-      case 'In-App Purchase':
-        return 'secondary';
-      case 'Free Download':
+      case 'mini':
         return 'outline';
+      case 'weekly':
+        return 'secondary';
+      case 'monthly':
+        return 'secondary';
+      case 'yearly':
+        return 'default';
       default:
         return 'outline';
     }
   };
 
   const handleExport = () => {
-    // TODO: Implement export functionality
     console.log('Export clicked');
   };
 
@@ -74,11 +75,11 @@ export function AndroidLog() {
             hasActiveFilters={hasActiveFilters}
             currentPage={currentPage}
             setCurrentPage={setCurrentPage}
-            paginatedData={data?.statistic || []}
-            subDetail={data?.subDetail || []}
-            filteredData={data?.statistic || []}
-            totalPages={Math.ceil((data?.statistic?.length || 0) / 10)}
-            totalEntries={data?.statistic?.length || 0}
+            paginatedData={Array.isArray((data as any)?.statistic) ? (data as any).statistic : []}
+            subDetail={Array.isArray((data as any)?.subDetail) ? (data as any).subDetail : []}
+            filteredData={Array.isArray((data as any)?.statistic) ? (data as any).statistic : []}
+            totalPages={Math.ceil((Array.isArray((data as any)?.statistic) ? (data as any).statistic.length : 0) / 10)}
+            totalEntries={Array.isArray((data as any)?.statistic) ? (data as any).statistic.length : 0}
             onExport={handleExport}
             onRefresh={handleRefresh}
             isLoading={isLoading}
@@ -86,6 +87,7 @@ export function AndroidLog() {
         </TabsContent>
         <TabsContent value="logs">
           <LogsTab
+            isLoading={isLoading}
             appCodeFilter={appCodeFilter}
             setAppCodeFilter={setAppCodeFilter}
             countryFilter={countryFilter}

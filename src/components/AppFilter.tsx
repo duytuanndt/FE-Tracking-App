@@ -3,7 +3,7 @@ import { format } from 'date-fns';
 import { CalendarIcon, Filter, X } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Calendar } from '@/components/ui/calendar';
 import {
   Popover,
@@ -20,6 +20,8 @@ import {
 import { cn } from '@/lib/utils';
 import { useMemo } from 'react';
 import { mockAndroidLogs } from '@/mocks/androidMock';
+import { appsMock } from '@/mocks/appMock';
+import { purchaseTypeMock } from '@/mocks/purchaseTypeMock';
 
 const datePresets = [
   { label: 'Today', days: 0 },
@@ -60,10 +62,9 @@ export default function AppFilters({
   clearFilters: () => void;
   hasActiveFilters: boolean;
 }) {
-  // console.log('isStatistics', isStatistics);
   const uniqueAppCodes = useMemo(() => {
     return Array.from(
-      new Set(mockAndroidLogs.map((log) => log.appCode)),
+      new Set(appsMock.map((log) => log.toLocaleUpperCase())),
     ).sort();
   }, []);
 
@@ -75,8 +76,7 @@ export default function AppFilters({
 
   const uniquePurchaseTypes = useMemo(() => {
     return Array.from(
-      new Set(mockAndroidLogs.map((log) => log.purchase)),
-    ).sort();
+      new Set(purchaseTypeMock.map((log) => log.replace(/^\w/, (c) => c.toUpperCase()))));
   }, []);
 
   const clearDateRange = () => {
@@ -106,201 +106,208 @@ export default function AppFilters({
 
   return (
     <Card className="mb-4">
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <CardTitle className="flex items-center gap-2">
-            <Filter className="h-5 w-5" />
-            Filters
-            {hasActiveFilters && (
-              <Badge variant="secondary" className="ml-2">
-                Active
-              </Badge>
-            )}
-          </CardTitle>
-          {hasActiveFilters && (
-            <Button variant="ghost" size="sm" onClick={clearFilters}>
-              <X className="h-4 w-4 mr-2" />
-              Clear All
-            </Button>
-          )}
-        </div>
-      </CardHeader>
-      <CardContent className="space-y-6">
-        {/* Date Range Filters */}
-        <div className="space-y-4">
-          <div className="flex items-center gap-2">
-            <CalendarIcon className="h-4 w-4" />
-            <span className="text-sm font-medium">Date Range</span>
-            {(startDate || endDate) && (
-              <Button variant="ghost" size="sm" onClick={clearDateRange}>
-                <X className="h-3 w-3" />
-              </Button>
-            )}
+      <CardContent className="py-3">
+          <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+            <div className="flex flex-wrap items-center gap-2">
+              <Filter className="h-4 w-4 text-muted-foreground" />
+              <span className="text-sm font-medium text-muted-foreground">
+                Filters
+              </span>
+              {hasActiveFilters && (
+                <Badge variant="secondary" className="ml-1">
+                  Active
+                </Badge>
+              )}
+            </div>
+
+            <div className="flex flex-1 flex-wrap items-center gap-2 md:justify-end">
+              <div className="flex flex-wrap items-center gap-1">
+                {datePresets.map((preset) => (
+                  <Button
+                    key={preset.label}
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setDatePreset(preset.days)}
+                    className="h-8 px-2 text-xs"
+                  >
+                    {preset.label}
+                  </Button>
+                ))}
+              </div>
+
+              <div className="flex flex-wrap items-center gap-2">
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className={cn(
+                        'h-8 min-w-[150px] justify-start text-left font-normal',
+                        !startDate && 'text-muted-foreground',
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {startDate ? format(startDate, 'PPP') : 'Start date'}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={startDate}
+                      onSelect={(date) => {
+                        setStartDate(date);
+                        handleFilterChange();
+                      }}
+                      disabled={(date) =>
+                        date > new Date() || (!!endDate && date > endDate)
+                      }
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
+
+                <span className="text-xs text-muted-foreground">to</span>
+
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className={cn(
+                        'h-8 min-w-[150px] justify-start text-left font-normal',
+                        !endDate && 'text-muted-foreground',
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {endDate ? format(endDate, 'PPP') : 'End date'}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={endDate}
+                      onSelect={(date) => {
+                        setEndDate(date);
+                        handleFilterChange();
+                      }}
+                      disabled={(date) =>
+                        date > new Date() || (!!startDate && date < startDate)
+                      }
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
+
+                {(startDate || endDate) && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8"
+                    onClick={clearDateRange}
+                    aria-label="Clear date range"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                )}
+              </div>
+
+              {hasActiveFilters && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={clearFilters}
+                  className="h-8"
+                >
+                  <X className="mr-2 h-4 w-4" />
+                  Clear all
+                </Button>
+              )}
+            </div>
           </div>
-          <div className="flex flex-wrap gap-2">
-            {datePresets.map((preset) => (
+        </CardContent>
+      {isStatistics ? null : (
+        <>
+          <CardContent className="pt-0 pb-3">
+            {/* Dropdown Filters - compact row layout to match header filters */}
+            <div className="flex flex-wrap items-center gap-2 md:justify-between">
+              <div className="flex flex-wrap items-center gap-2">
+                <Select
+                  value={appCodeFilter}
+                  onValueChange={(value) => {
+                    setAppCodeFilter(value);
+                    handleFilterChange();
+                  }}
+                  disabled={true}
+                >
+                  <SelectTrigger className="h-8 min-w-[160px]">
+                    <SelectValue placeholder="App code" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All App Codes</SelectItem>
+                    {uniqueAppCodes.map((code) => (
+                      <SelectItem key={code} value={code}>
+                        {code}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                <Select
+                  value={countryFilter}
+                  onValueChange={(value) => {
+                    setCountryFilter(value);
+                    handleFilterChange();
+                  }}
+                  disabled={true}
+                >
+                  <SelectTrigger className="h-8 min-w-[160px]">
+                    <SelectValue placeholder="Country/Region"  />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Countries</SelectItem>
+                    {uniqueCountries.map((country) => (
+                      <SelectItem key={country} value={country}>
+                        {country}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                <Select
+                  value={purchaseTypeFilter}
+                  onValueChange={(value) => {
+                    setPurchaseTypeFilter(value);
+                    handleFilterChange();
+                  }}
+                  disabled={true}
+                >
+                  <SelectTrigger className="h-8 min-w-[160px]">
+                    <SelectValue placeholder="Purchase type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Purchase Types</SelectItem>
+                    {uniquePurchaseTypes.map((type) => (
+                      <SelectItem key={type} value={type}>
+                        {type}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
               <Button
-                key={preset.label}
                 variant="outline"
                 size="sm"
-                onClick={() => setDatePreset(preset.days)}
-                className="text-xs"
-              >
-                {preset.label}
-              </Button>
-            ))}
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Start Date</label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className={cn(
-                      'w-full justify-start text-left font-normal',
-                      !startDate && 'text-muted-foreground',
-                    )}
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {startDate ? format(startDate, 'PPP') : 'Pick start date'}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={startDate}
-                    onSelect={(date) => {
-                      setStartDate(date);
-                      handleFilterChange();
-                    }}
-                    // Fix type error: Always return a boolean
-                    disabled={(date) =>
-                      date > new Date() || (!!endDate && date > endDate)
-                    }
-                    initialFocus
-                  />
-                </PopoverContent>
-              </Popover>
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium">End Date</label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className={cn(
-                      'w-full justify-start text-left font-normal',
-                      !endDate && 'text-muted-foreground',
-                    )}
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {endDate ? format(endDate, 'PPP') : 'Pick end date'}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={endDate}
-                    onSelect={(date) => {
-                      setEndDate(date);
-                      handleFilterChange();
-                    }}
-                    disabled={(date) =>
-                      date > new Date() || (!!startDate && date < startDate)
-                    }
-                    initialFocus
-                  />
-                </PopoverContent>
-              </Popover>
-            </div>
-          </div>
-        </div>
-
-        {/* Dropdown Filters */}
-        {isStatistics ? null : (
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="space-y-2">
-              <label className="text-sm font-medium">App Code</label>
-              <Select
-                value={appCodeFilter}
-                onValueChange={(value) => {
-                  setAppCodeFilter(value);
-                  handleFilterChange();
-                }}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select app code" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All App Codes</SelectItem>
-                  {uniqueAppCodes.map((code) => (
-                    <SelectItem key={code} value={code}>
-                      {code}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Country/Region</label>
-              <Select
-                value={countryFilter}
-                onValueChange={(value) => {
-                  setCountryFilter(value);
-                  handleFilterChange();
-                }}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select country" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Countries</SelectItem>
-                  {uniqueCountries.map((country) => (
-                    <SelectItem key={country} value={country}>
-                      {country}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Purchase Type</label>
-              <Select
-                value={purchaseTypeFilter}
-                onValueChange={(value) => {
-                  setPurchaseTypeFilter(value);
-                  handleFilterChange();
-                }}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select purchase type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Purchase Types</SelectItem>
-                  {uniquePurchaseTypes.map((type) => (
-                    <SelectItem key={type} value={type}>
-                      {type}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="flex items-end">
-              <Button
-                variant="outline"
                 onClick={clearFilters}
-                className="w-full bg-transparent"
+                className="h-8"
               >
-                Clear All Filters
+                <X className="mr-2 h-4 w-4" />
+                Clear all filters
               </Button>
             </div>
-          </div>
-        )}
-      </CardContent>
+          </CardContent>
+        </>
+      )}
     </Card>
   );
 }
