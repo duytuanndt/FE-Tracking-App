@@ -1,13 +1,7 @@
 import {
   BarChart3,
   Home,
-  Users,
   Settings,
-  FileText,
-  TrendingUp,
-  Calendar,
-  Bell,
-  Search,
   LayoutList,
   Plus,
   ChevronUp,

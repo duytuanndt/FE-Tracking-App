@@ -3,7 +3,6 @@
 import type React from 'react';
 
 import { Toaster } from '@/components/ui/sonner';
-import { useIsMobile } from '../hooks/use-mobile';
 import {
   SidebarProvider,
   SidebarInset,
@@ -25,8 +24,6 @@ interface LayoutProps {
 }
 
 export function Layout({ children }: LayoutProps) {
-  const isMobile = useIsMobile();
-
   return (
     <SidebarProvider>
       <AppSidebar />
