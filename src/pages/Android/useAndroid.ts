@@ -33,7 +33,7 @@ export const useAndroid = () => {
     enabled: !!payload.from && !!payload.to, // Only fetch when both dates are provided
   });
 
-  // console.log('data', data?.statistic);
+  console.log('data', data?.subDetail);
 
   const filteredData: any = useMemo(() => {
     if (!data) return [];
@@ -52,6 +52,7 @@ export const useAndroid = () => {
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
     return filteredData.slice(startIndex, startIndex + ITEMS_PER_PAGE);
   }, [filteredData, currentPage]);
+  console.log('paginatedData', paginatedData);
 
   const totalPages = Math.ceil(filteredData.length / ITEMS_PER_PAGE);
 

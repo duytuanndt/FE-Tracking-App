@@ -75,6 +75,7 @@ export function AndroidLog() {
             currentPage={currentPage}
             setCurrentPage={setCurrentPage}
             paginatedData={data?.statistic || []}
+            subDetail={data?.subDetail || []}
             filteredData={data?.statistic || []}
             totalPages={Math.ceil((data?.statistic?.length || 0) / 10)}
             totalEntries={data?.statistic?.length || 0}

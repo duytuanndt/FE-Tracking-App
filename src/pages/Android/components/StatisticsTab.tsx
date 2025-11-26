@@ -21,6 +21,7 @@ interface StatisticsTabProps {
   currentPage: number;
   setCurrentPage: (page: number) => void;
   paginatedData: any[];
+  subDetail: any[];
   filteredData: any[];
   totalPages: number;
   totalEntries: number;
@@ -52,6 +53,7 @@ export function StatisticsTab({
   onExport,
   onRefresh,
   isLoading,
+  subDetail,
 }: StatisticsTabProps) {
   return (
     <>
@@ -96,7 +98,7 @@ export function StatisticsTab({
           </div>
         </CardHeader>
         <CardContent>
-          <StatisticsTable data={paginatedData} isLoading={isLoading} />
+          <StatisticsTable data={paginatedData} isLoading={isLoading} subDetail={subDetail}/>
           <TablePagination
             currentPage={currentPage}
             totalPages={totalPages}
