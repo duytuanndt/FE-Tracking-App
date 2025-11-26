@@ -1,8 +1,8 @@
-import "./App.css"
-import { BrowserRouter, Route, Routes } from "react-router-dom"
-import { Layout } from "./components/Layout"
-import { NotFound } from "./pages/NotFound"
-import { AndroidLog } from "./pages/Android"
+import './App.css';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { Layout } from './components/Layout';
+import { NotFound } from './pages/NotFound';
+import { AndroidLog } from './pages/Android';
 
 function App() {
   return (
@@ -54,12 +54,7 @@ function App() {
               </div>
             }
           />
-          <Route
-            path="/android-logs"
-            element={
-              <AndroidLog />
-            }
-          />
+          <Route path="/android-logs" element={<AndroidLog />} />
           <Route
             path="/calendar"
             element={
@@ -91,7 +86,7 @@ function App() {
         </Routes>
       </Layout>
     </BrowserRouter>
-  )
+  );
 }
 
-export default App
+export default App;

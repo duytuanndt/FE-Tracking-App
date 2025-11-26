@@ -1,19 +1,13 @@
 import {
   BarChart3,
   Home,
-  Users,
   Settings,
-  FileText,
-  TrendingUp,
-  Calendar,
-  Bell,
-  Search,
   LayoutList,
   Plus,
   ChevronUp,
   User2,
-} from "lucide-react"
-import { Link, useLocation } from "react-router-dom"
+} from 'lucide-react';
+import { Link, useLocation } from 'react-router-dom';
 
 import {
   Sidebar,
@@ -27,59 +21,64 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarSeparator,
-} from "@/components/ui/sidebar"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+} from '@/components/ui/sidebar';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 // Navigation items for the main sections
 const navigationItems = [
   {
-    title: "Dashboard",
-    url: "/",
+    title: 'Dashboard',
+    url: '/',
     icon: Home,
   },
-  {
-    title: "Applications",
-    url: "/applications",
-    icon: FileText,
-  },
-  {
-    title: "Analytics",
-    url: "/analytics",
-    icon: BarChart3,
-  },
-  {
-    title: "Performance",
-    url: "/performance",
-    icon: TrendingUp,
-  },
-  {
-    title: "Users",
-    url: "/users",
-    icon: Users,
-  },
-]
+  // {
+  //   title: 'Applications',
+  //   url: '/applications',
+  //   icon: FileText,
+  // },
+  // {
+  //   title: 'Analytics',
+  //   url: '/analytics',
+  //   icon: BarChart3,
+  // },
+  // {
+  //   title: 'Performance',
+  //   url: '/performance',
+  //   icon: TrendingUp,
+  // },
+  // {
+  //   title: 'Users',
+  //   url: '/users',
+  //   icon: Users,
+  // },
+];
 
 // Tools and utilities
 const toolsItems = [
   {
-    title: "Android Logs",
-    url: "/android-logs",
+    title: 'Android Logs',
+    url: '/android-logs',
     icon: LayoutList,
   },
-  {
-    title: "Calendar",
-    url: "/calendar",
-    icon: Calendar,
-  },
-  {
-    title: "Notifications",
-    url: "/notifications",
-    icon: Bell,
-  },
-]
+  // {
+  //   title: 'Calendar',
+  //   url: '/calendar',
+  //   icon: Calendar,
+  // },
+  // {
+  //   title: 'Notifications',
+  //   url: '/notifications',
+  //   icon: Bell,
+  // },
+];
 
 export function AppSidebar() {
-  const location = useLocation()
+  const location = useLocation();
 
   return (
     <Sidebar>
@@ -108,7 +107,10 @@ export function AppSidebar() {
             <SidebarMenu>
               {navigationItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild isActive={location.pathname === item.url}>
+                  <SidebarMenuButton
+                    asChild
+                    isActive={location.pathname === item.url}
+                  >
                     <Link to={item.url}>
                       <item.icon />
                       <span>{item.title}</span>
@@ -128,7 +130,10 @@ export function AppSidebar() {
             <SidebarMenu>
               {toolsItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild isActive={location.pathname === item.url}>
+                  <SidebarMenuButton
+                    asChild
+                    isActive={location.pathname === item.url}
+                  >
                     <Link to={item.url}>
                       <item.icon />
                       <span>{item.title}</span>
@@ -150,7 +155,7 @@ export function AppSidebar() {
                 <SidebarMenuButton asChild>
                   <Link to="/applications/new">
                     <Plus />
-                    <span>New Application</span>
+                    <span>New Logs</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -178,7 +183,10 @@ export function AppSidebar() {
                   <ChevronUp className="ml-auto" />
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
-              <DropdownMenuContent side="top" className="w-[--radix-popper-anchor-width]">
+              <DropdownMenuContent
+                side="top"
+                className="w-[--radix-popper-anchor-width]"
+              >
                 <DropdownMenuItem>
                   <span>Account</span>
                 </DropdownMenuItem>
@@ -194,5 +202,5 @@ export function AppSidebar() {
         </SidebarMenu>
       </SidebarFooter>
     </Sidebar>
-  )
+  );
 }
