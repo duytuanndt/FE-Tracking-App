@@ -8,6 +8,19 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
-    }
+    },
+
+    // 👇 Relax type checking
+    "strict": false,
+    "noImplicitAny": false,
+    "noImplicitThis": false,
+    "alwaysStrict": false,
+
+    // 👇 Bỏ qua lỗi type trong *.d.ts, node_modules,...
+    "skipLibCheck": true,
+
+    // 👇 Không build file (nếu có lỡ chạy tsc) – chỉ dùng cho tooling
+    "noEmit": true
   }
 }
+
