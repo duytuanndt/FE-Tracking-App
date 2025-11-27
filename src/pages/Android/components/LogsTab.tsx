@@ -4,6 +4,7 @@ import { LogsTable } from './LogsTable';
 import { TablePagination } from './TablePagination';
 import AppFilters from '@/components/AppFilter';
 import { mockAndroidLogs } from '@/mocks/androidMock';
+import { AndroidAppListResponse } from '@/entities/android';
 
 interface LogsTabProps {
   isLoading: boolean;
@@ -28,6 +29,7 @@ interface LogsTabProps {
   onExport?: () => void;
   onRefresh?: () => void;
   getPurchaseBadgeVariant: (purchaseType: string) => 'default' | 'secondary' | 'outline';
+  appListData?: AndroidAppListResponse;
 }
 
 export function LogsTab({
@@ -53,6 +55,7 @@ export function LogsTab({
   onExport,
   onRefresh,
   getPurchaseBadgeVariant,
+  appListData,
 }: LogsTabProps) {
   return (
     <>
@@ -80,6 +83,7 @@ export function LogsTab({
         handleFilterChange={handleFilterChange}
         clearFilters={clearFilters}
         hasActiveFilters={hasActiveFilters}
+        appListData={appListData}
       />
 
       <Card>

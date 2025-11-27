@@ -3,6 +3,7 @@ import { ActionButtons } from './ActionButtons';
 import { StatisticsTable } from './StatisticsTable';
 import { TablePagination } from './TablePagination';
 import AppFilters from '@/components/AppFilter';
+import { AndroidAppListResponse } from '@/entities/android';
 
 interface StatisticsTabProps {
   appCodeFilter: string;
@@ -28,6 +29,7 @@ interface StatisticsTabProps {
   onExport?: () => void;
   onRefresh?: () => void;
   isLoading: boolean;
+  appListData?: AndroidAppListResponse;
 }
 
 export function StatisticsTab({
@@ -54,6 +56,7 @@ export function StatisticsTab({
   onRefresh,
   isLoading,
   subDetail,
+  appListData,
 }: StatisticsTabProps) {
   return (
     <>
@@ -81,6 +84,7 @@ export function StatisticsTab({
         handleFilterChange={handleFilterChange}
         clearFilters={clearFilters}
         hasActiveFilters={hasActiveFilters}
+        appListData={appListData}
       />
 
       <Card>

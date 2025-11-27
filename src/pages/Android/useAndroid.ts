@@ -1,5 +1,7 @@
 // src/hooks/useAndroid.ts
-import { getStatisticsAndroidApp } from '@/apis/androidApis';
+import { getStatisticsAndroidApp, getAndroidAppList } from '@/apis/androidApis';
+import { AndroidAppListParams } from '@/entities/android';
+import { countryMock } from '@/mocks/countryMock';
 import { useQuery } from '@tanstack/react-query';
 import { useState, useMemo } from 'react';
 
@@ -30,15 +32,42 @@ export const useAndroid = () => {
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ['statistics', payload],
     queryFn: () => getStatisticsAndroidApp(payload),
-    enabled: !!payload.from && !!payload.to, // Only fetch when both dates are provided
+    enabled: !!payload.from && !!payload.to,
+  });
+
+  const appListParams = useMemo<AndroidAppListParams>(() => {
+    return {
+      isLive: true,
+      distributor: '',
+      appName: '',
+      appCode: '',
+      // storeId: '',
+    };
+  }, []);
+
+  const {
+    data: appListData,
+    isLoading: isAppListLoading,
+    error: appListError,
+    refetch: refetchAppList,
+  } = useQuery({
+    queryKey: ['android-apps', appListParams],
+    queryFn: () => getAndroidAppList(appListParams),
   });
 
   const filteredData: any = useMemo(() => {
     if (!data || !Array.isArray((data as any)?.data)) return [];
 
     return ((data as any)?.data ?? []).filter((log: any) => {
+      const resolvedCountryName =
+        countryFilter === 'all'
+          ? null
+          : ((countryMock as Record<string, string>)[
+              countryFilter.toUpperCase()
+            ] ?? countryFilter);
+
       const matchesCountry =
-        countryFilter === 'all' || log.countryOrRegion === countryFilter;
+        countryFilter === 'all' || log.countryOrRegion === resolvedCountryName;
       const matchesPurchase =
         purchaseTypeFilter === 'all' || log.purchase === purchaseTypeFilter;
       return matchesCountry && matchesPurchase;
@@ -50,7 +79,6 @@ export const useAndroid = () => {
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
     return filteredData.slice(startIndex, startIndex + ITEMS_PER_PAGE);
   }, [filteredData, currentPage]);
-  // console.log('paginatedData', paginatedData);
 
   const totalPages = Math.ceil(filteredData.length / ITEMS_PER_PAGE);
 
@@ -95,5 +123,10 @@ export const useAndroid = () => {
     error,
     refetch,
     data,
+    appListData,
+    isAppListLoading,
+    appListError,
+    refetchAppList,
+    appListQueryKey: ['android-apps', appListParams],
   };
 };

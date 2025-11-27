@@ -17,14 +17,13 @@ import axios, {
 
 // Create axios instance with base URL
 const apiClient: AxiosInstance = axios.create({
-  baseURL: 'https://appletracking.mobileltd.org/api', // http://localhost:7337/api
+  baseURL: 'http://localhost:7337/api', // http://localhost:7337/api https://appletracking.mobileltd.org/api
   headers: {
     'Content-Type': 'application/json',
   },
   timeout: 30000, // 5 seconds
   maxContentLength: Infinity,
   maxBodyLength: Infinity,
-  // validateStatus: (status) => status >= 200 && status < 300,
 });
 
 // Request interceptor

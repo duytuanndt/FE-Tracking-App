@@ -1,6 +1,6 @@
 // AndroidFilters.tsx
 import { format } from 'date-fns';
-import { CalendarIcon, Filter, X } from 'lucide-react';
+import { CalendarIcon, Filter, X, Check, ChevronsUpDown } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -17,11 +17,19 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@/components/ui/command';
 import { cn } from '@/lib/utils';
-import { useMemo } from 'react';
-import { mockAndroidLogs } from '@/mocks/androidMock';
-import { appsMock } from '@/mocks/appMock';
+import { useMemo, useState } from 'react';
 import { purchaseTypeMock } from '@/mocks/purchaseTypeMock';
+import { AndroidAppListResponse } from '@/entities/android';
+import { countryMock } from '@/mocks/countryMock';
 
 const datePresets = [
   { label: 'Today', days: 0 },
@@ -49,6 +57,7 @@ export default function AppFilters({
   handleFilterChange,
   clearFilters,
   hasActiveFilters,
+  appListData,
 }: {
   isStatistics: boolean;
   appCodeFilter: string;
@@ -64,18 +73,30 @@ export default function AppFilters({
   handleFilterChange: () => void;
   clearFilters: () => void;
   hasActiveFilters: boolean;
+  appListData?: AndroidAppListResponse;
 }) {
-  const uniqueAppCodes = useMemo(() => {
-    return Array.from(
-      new Set(appsMock.map((log) => log.toLocaleUpperCase())),
-    ).sort();
+  const [appPopoverOpen, setAppPopoverOpen] = useState(false);
+  const [countryPopoverOpen, setCountryPopoverOpen] = useState(false);
+  const selectedApp = useMemo(() => {
+    if (!appListData?.apps || appCodeFilter === 'all') return null;
+    return appListData.apps.find((app) => app.appID === appCodeFilter);
+  }, [appListData, appCodeFilter]);
+
+  const countryOptions = useMemo(() => {
+    return Object.entries(countryMock)
+      .map(([code, name]) => ({
+        code,
+        name,
+      }))
+      .sort((a, b) => a.name.localeCompare(b.name));
   }, []);
 
-  const uniqueCountries = useMemo(() => {
-    return Array.from(
-      new Set(mockAndroidLogs.map((log) => log.countryOrRegion)),
-    ).sort();
-  }, []);
+  const selectedCountry = useMemo(() => {
+    if (countryFilter === 'all') return null;
+    return countryOptions.find(
+      (country) => country.code === countryFilter.toUpperCase(),
+    );
+  }, [countryFilter, countryOptions]);
 
   const uniquePurchaseTypes = useMemo(() => {
     return Array.from(
@@ -268,53 +289,185 @@ export default function AppFilters({
             </div>
           </div>
         </CardContent>
-      {isStatistics ? null : (
-        <>
-          <CardContent className="pt-0 pb-3">
+        <CardContent className="pt-0 pb-3">
             {/* Dropdown Filters - compact row layout to match header filters */}
             <div className="flex flex-wrap items-center gap-2 md:justify-between">
               <div className="flex flex-wrap items-center gap-2">
-                <Select
-                  value={appCodeFilter}
-                  onValueChange={(value) => {
-                    setAppCodeFilter(value);
-                    handleFilterChange();
-                  }}
-                  disabled={true}
+                <Popover
+                  open={appPopoverOpen}
+                  onOpenChange={setAppPopoverOpen}
                 >
-                  <SelectTrigger className="h-8 min-w-[160px]">
-                    <SelectValue placeholder="App code" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All App Codes</SelectItem>
-                    {uniqueAppCodes.map((code) => (
-                      <SelectItem key={code} value={code}>
-                        {code}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      role="combobox"
+                      aria-expanded={appPopoverOpen}
+                      className="h-8 min-w-[200px] justify-between"
+                    >
+                      {selectedApp ? (
+                        <div className="flex items-center gap-2">
+                          <img
+                            src={selectedApp.appIcon}
+                            alt={selectedApp.appName}
+                            className="h-4 w-4 rounded"
+                          />
+                          <span>{selectedApp.appCode.toUpperCase()}</span>
+                        </div>
+                      ) : (
+                        'Select app...'
+                      )}
+                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-[300px] p-0" align="start">
+                    <Command>
+                      <CommandInput placeholder="Search app..." />
+                      <CommandList>
+                        <CommandEmpty>No app found.</CommandEmpty>
+                        <CommandGroup>
+                          <CommandItem
+                            value="all"
+                            onSelect={() => {
+                              setAppCodeFilter('all');
+                              setAppPopoverOpen(false);
+                              handleFilterChange();
+                            }}
+                          >
+                            <Check
+                              className={cn(
+                                'mr-2 h-4 w-4',
+                                appCodeFilter === 'all'
+                                  ? 'opacity-100'
+                                  : 'opacity-0',
+                              )}
+                            />
+                            All Apps
+                          </CommandItem>
+                          {appListData?.apps?.map((app) => (
+                            <CommandItem
+                              key={app._id}
+                              value={`${app.appCode} ${app.appName}`}
+                              onSelect={() => {
+                                setAppCodeFilter(app.appID);
+                                setAppPopoverOpen(false);
+                                handleFilterChange();
+                              }}
+                            >
+                              <Check
+                                className={cn(
+                                  'mr-2 h-4 w-4',
+                                  appCodeFilter === app.appID
+                                    ? 'opacity-100'
+                                    : 'opacity-0',
+                                )}
+                              />
+                              <div className="flex items-center gap-2">
+                                <img
+                                  src={app.appIcon}
+                                  alt={app.appName}
+                                  className="h-8 w-8 rounded"
+                                />
+                                <div className="flex flex-col">
+                                  <span className="text-sm font-medium">
+                                    {app.appCode.toUpperCase()}
+                                  </span>
+                                  <span className="text-xs text-muted-foreground">
+                                    {app.appName}
+                                  </span>
+                                </div>
+                              </div>
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
 
-                <Select
-                  value={countryFilter}
-                  onValueChange={(value) => {
-                    setCountryFilter(value);
-                    handleFilterChange();
+                <Popover
+                  open={!isStatistics && countryPopoverOpen}
+                  onOpenChange={(openState) => {
+                    if (isStatistics) return;
+                    setCountryPopoverOpen(openState);
                   }}
-                  disabled={true}
                 >
-                  <SelectTrigger className="h-8 min-w-[160px]">
-                    <SelectValue placeholder="Country/Region"  />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Countries</SelectItem>
-                    {uniqueCountries.map((country) => (
-                      <SelectItem key={country} value={country}>
-                        {country}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      role="combobox"
+                      aria-expanded={!isStatistics && countryPopoverOpen}
+                      className="h-8 min-w-[200px] justify-between"
+                      disabled={isStatistics}
+                    >
+                      {selectedCountry ? (
+                        <span>
+                          {selectedCountry.code} {selectedCountry.name}
+                        </span>
+                      ) : countryFilter === 'all' ? (
+                        'All Countries'
+                      ) : (
+                        'Select country...'
+                      )}
+                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-[300px] p-0" align="start">
+                    <Command>
+                      <CommandInput placeholder="Search country..." />
+                      <CommandList>
+                        <CommandEmpty>No country found.</CommandEmpty>
+                        <CommandGroup>
+                          <CommandItem
+                            value="all"
+                            onSelect={() => {
+                              setCountryFilter('all');
+                              setCountryPopoverOpen(false);
+                              handleFilterChange();
+                            }}
+                          >
+                            <Check
+                              className={cn(
+                                'mr-2 h-4 w-4',
+                                countryFilter === 'all'
+                                  ? 'opacity-100'
+                                  : 'opacity-0',
+                              )}
+                            />
+                            All Countries
+                          </CommandItem>
+                          {countryOptions.map((country) => (
+                            <CommandItem
+                              key={country.code}
+                              value={`${country.code} ${country.name}`}
+                              onSelect={() => {
+                                setCountryFilter(country.code);
+                                setCountryPopoverOpen(false);
+                                handleFilterChange();
+                              }}
+                            >
+                              <Check
+                                className={cn(
+                                  'mr-2 h-4 w-4',
+                                  countryFilter.toUpperCase() === country.code
+                                    ? 'opacity-100'
+                                    : 'opacity-0',
+                                )}
+                              />
+                              <div className="flex flex-col">
+                                <span className="text-sm font-medium">
+                                  {country.code}
+                                </span>
+                                <span className="text-xs text-muted-foreground">
+                                  {country.name}
+                                </span>
+                              </div>
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
 
                 <Select
                   value={purchaseTypeFilter}
@@ -322,7 +475,7 @@ export default function AppFilters({
                     setPurchaseTypeFilter(value);
                     handleFilterChange();
                   }}
-                  disabled={true}
+                  disabled={isStatistics}
                 >
                   <SelectTrigger className="h-8 min-w-[160px]">
                     <SelectValue placeholder="Purchase type" />
@@ -349,7 +502,88 @@ export default function AppFilters({
               </Button>
             </div>
           </CardContent>
-        </>
+      {isStatistics ? null : ( null
+        // <>
+        //   <CardContent className="pt-0 pb-3">
+        //     {/* Dropdown Filters - compact row layout to match header filters */}
+        //     <div className="flex flex-wrap items-center gap-2 md:justify-between">
+        //       <div className="flex flex-wrap items-center gap-2">
+        //         <Select
+        //           value={appCodeFilter}
+        //           onValueChange={(value) => {
+        //             setAppCodeFilter(value);
+        //             handleFilterChange();
+        //           }}
+        //           disabled={true}
+        //         >
+        //           <SelectTrigger className="h-8 min-w-[160px]">
+        //             <SelectValue placeholder="App code" />
+        //           </SelectTrigger>
+        //           <SelectContent>
+        //             <SelectItem value="all">All App Codes</SelectItem>
+        //             {uniqueAppCodes.map((code) => (
+        //               <SelectItem key={code} value={code}>
+        //                 {code}
+        //               </SelectItem>
+        //             ))}
+        //           </SelectContent>
+        //         </Select>
+
+        //         <Select
+        //           value={countryFilter}
+        //           onValueChange={(value) => {
+        //             setCountryFilter(value);
+        //             handleFilterChange();
+        //           }}
+        //           disabled={true}
+        //         >
+        //           <SelectTrigger className="h-8 min-w-[160px]">
+        //             <SelectValue placeholder="Country/Region"  />
+        //           </SelectTrigger>
+        //           <SelectContent>
+        //             <SelectItem value="all">All Countries</SelectItem>
+        //             {uniqueCountries.map((country) => (
+        //               <SelectItem key={country} value={country}>
+        //                 {country}
+        //               </SelectItem>
+        //             ))}
+        //           </SelectContent>
+        //         </Select>
+
+        //         <Select
+        //           value={purchaseTypeFilter}
+        //           onValueChange={(value) => {
+        //             setPurchaseTypeFilter(value);
+        //             handleFilterChange();
+        //           }}
+        //           disabled={true}
+        //         >
+        //           <SelectTrigger className="h-8 min-w-[160px]">
+        //             <SelectValue placeholder="Purchase type" />
+        //           </SelectTrigger>
+        //           <SelectContent>
+        //             <SelectItem value="all">All Purchase Types</SelectItem>
+        //             {uniquePurchaseTypes.map((type) => (
+        //               <SelectItem key={type} value={type}>
+        //                 {type}
+        //               </SelectItem>
+        //             ))}
+        //           </SelectContent>
+        //         </Select>
+        //       </div>
+
+        //       <Button
+        //         variant="outline"
+        //         size="sm"
+        //         onClick={clearFilters}
+        //         className="h-8"
+        //       >
+        //         <X className="mr-2 h-4 w-4" />
+        //         Clear all filters
+        //       </Button>
+        //     </div>
+        //   </CardContent>
+        // </>
       )}
     </Card>
   );

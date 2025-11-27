@@ -26,6 +26,7 @@ export function AndroidLog() {
     data,
     refetch,
     isLoading,
+    appListData,
   } = useAndroid();
 
   const getPurchaseBadgeVariant = (purchaseType: string) => {
@@ -83,6 +84,7 @@ export function AndroidLog() {
             onExport={handleExport}
             onRefresh={handleRefresh}
             isLoading={isLoading}
+            appListData={appListData}
           />
         </TabsContent>
         <TabsContent value="logs">
@@ -109,6 +111,7 @@ export function AndroidLog() {
             onExport={handleExport}
             onRefresh={handleRefresh}
             getPurchaseBadgeVariant={getPurchaseBadgeVariant}
+            appListData={appListData}
           />
         </TabsContent>
       </Tabs>
