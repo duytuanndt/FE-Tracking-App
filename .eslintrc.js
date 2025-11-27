@@ -16,6 +16,13 @@ module.exports = {
   rules: {
     'react/react-in-jsx-scope': 'off', // not needed with React 17+
     'prettier/prettier': 'warn', // or 'error' to be strict
+    '@typescript-eslint/no-explicit-any': 'off',
+    'no-undef': 'warn',
+    'no-unused-expressions': 'warn',
+    'no-unused-labels': 'warn',
+    'no-unused-imports': 'warn',
+    'no-unused-imports-ts': 'warn',
+    'no-unused-imports-tsx': 'warn',
   },
   settings: {
     react: { version: 'detect' },

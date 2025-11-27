@@ -9,19 +9,13 @@
     "paths": {
       "@/*": ["./src/*"]
     },
-
-    // 👇 Relax type checking
-    "strict": false,
+    "strict": true,
     "noImplicitAny": false,
-    "noImplicitThis": false,
-    "alwaysStrict": false,
-    "noUnusedLocals": false,
-    "noUnusedParameters": false,
-
-    // 👇 Bỏ qua lỗi type trong *.d.ts, node_modules,...
+    "noImplicitThis": true,
+    "alwaysStrict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
     "skipLibCheck": true,
-
-    // 👇 Không build file (nếu có lỡ chạy tsc) – chỉ dùng cho tooling
-    "noEmit": true
+    "noEmit": false
   }
 }

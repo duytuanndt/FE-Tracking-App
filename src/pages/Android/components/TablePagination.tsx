@@ -41,7 +41,7 @@ export function TablePagination({
           </PaginationItem>
 
           {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-            let pageNumber;
+            let pageNumber: any;
             if (totalPages <= 5) {
               pageNumber = i + 1;
             } else if (currentPage <= 3) {
