@@ -26,9 +26,12 @@ import { purchaseTypeMock } from '@/mocks/purchaseTypeMock';
 const datePresets = [
   { label: 'Today', days: 0 },
   { label: 'Yesterday', days: 1 },
+  { label: 'Last 3 days', days: 3 },
+  { label: 'This week', days: 6 },
   { label: 'Last 7 days', days: 7 },
+  { label: 'This month', days: 29 },
   { label: 'Last 30 days', days: 30 },
-  { label: 'Last 90 days', days: 90 },
+  { label: 'Last month', days: 31 },
 ];
 
 export default function AppFilters({
@@ -86,21 +89,61 @@ export default function AppFilters({
   };
 
   const setDatePreset = (days: number) => {
-    const end = new Date();
-    const start = new Date();
-    if (days === 0) {
-      setStartDate(start);
-      setEndDate(end);
-    } else if (days === 1) {
-      start.setDate(start.getDate() - 1);
-      end.setDate(end.getDate() - 1);
-      setStartDate(start);
-      setEndDate(end);
-    } else {
-      start.setDate(start.getDate() - days);
-      setStartDate(start);
-      setEndDate(end);
+    const now = new Date();
+    let from: number;
+    let to: number;
+
+    switch (days) {
+      case 0:
+        from = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+        to = now.getTime();
+        break;
+
+      case 3:
+        const threeDaysAgo = now.getTime() - 3 * 24 * 3600 * 1000;
+        from = new Date(threeDaysAgo).setHours(0, 0, 0, 0);
+        to = now.setHours(23, 59, 59, 999);
+        break;
+
+      case 6:
+        let startingWeekday = 0;
+        let startingWeekDate = now.getDate() - now.getDay() + (now.getDay() === 0 ? -6 : startingWeekday);
+        from = new Date(now.getFullYear(), now.getMonth(), startingWeekDate).getTime();
+        to = from + 6 * 24 * 3600 * 1000;
+        break;
+
+      case 7:
+        let sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 3600 * 1000);
+        from = new Date(sevenDaysAgo.getFullYear(), sevenDaysAgo.getMonth(), sevenDaysAgo.getDate()).getTime();
+        to = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+        break;
+
+      case 30:
+        let thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 3600 * 1000);
+        from = new Date(thirtyDaysAgo.getFullYear(), thirtyDaysAgo.getMonth(), thirtyDaysAgo.getDate()).getTime();
+        to = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+        break;
+
+      case 29:
+        from = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
+        to = new Date(now.getFullYear(), now.getMonth() + 1, 0).getTime();
+        break;
+
+      case 31:
+        let startTime = new Date(now.getFullYear(), now.getMonth() - 1, 1).getTime();
+        let endTime = new Date(now.getFullYear(), now.getMonth(), 0).getTime();
+        from = new Date(startTime).getTime();
+        to = new Date(endTime).getTime();
+        break;
+
+      default:
+        from = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1).setHours(0, 0, 0, 0);
+        to = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1).setHours(23, 59, 59, 999);
+        break;
     }
+
+    setStartDate(new Date(from));
+    setEndDate(new Date(to));
     handleFilterChange();
   };
 
