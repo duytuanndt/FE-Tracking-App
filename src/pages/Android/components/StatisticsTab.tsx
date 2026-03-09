@@ -2,8 +2,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ActionButtons } from './ActionButtons';
 import { StatisticsTable } from './StatisticsTable';
 import { TablePagination } from './TablePagination';
+import { PurchaseTypeChart } from './PurchaseTypeChart';
 import AppFilters from '@/components/AppFilter';
-import { AndroidAppListResponse } from '@/entities/android';
+import { AndroidAppListResponse, Summary } from '@/entities/android';
 
 interface StatisticsTabProps {
   appCodeFilter: string;
@@ -30,6 +31,7 @@ interface StatisticsTabProps {
   onRefresh?: () => void;
   isLoading: boolean;
   appListData?: AndroidAppListResponse;
+  summary?: Summary[];
 }
 
 export function StatisticsTab({
@@ -57,6 +59,7 @@ export function StatisticsTab({
   isLoading,
   subDetail,
   appListData,
+  summary,
 }: StatisticsTabProps) {
   return (
     <>
@@ -87,7 +90,9 @@ export function StatisticsTab({
         appListData={appListData}
       />
 
-      <Card>
+      <PurchaseTypeChart data={summary || []} isLoading={isLoading} />
+
+      <Card className="mt-4">
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle>Statistics Entries</CardTitle>

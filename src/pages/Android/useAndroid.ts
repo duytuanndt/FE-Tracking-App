@@ -34,6 +34,7 @@ export const useAndroid = () => {
     queryFn: () => getStatisticsAndroidApp(payload),
     enabled: !!payload.from && !!payload.to,
   });
+  console.log(data?.summary);
 
   const appListParams = useMemo<AndroidAppListParams>(() => {
     return {

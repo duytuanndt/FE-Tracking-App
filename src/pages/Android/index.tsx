@@ -85,6 +85,7 @@ export function AndroidLog() {
             onRefresh={handleRefresh}
             isLoading={isLoading}
             appListData={appListData}
+            summary={Array.isArray((data as any)?.summary) ? (data as any).summary : []}
           />
         </TabsContent>
         <TabsContent value="logs">

@@ -2,6 +2,7 @@ import { api } from '@/lib/axios';
 import {
   AndroidAppListResponse,
   AndroidAppListParams,
+  StatisticsAndroidAppResponse,
 } from '@/entities/android';
 
 export const getAndroidAppList = async (
@@ -13,7 +14,9 @@ export const getAndroidAppList = async (
   return data;
 };
 
-export const getStatisticsAndroidApp = async (payload: any) => {
+export const getStatisticsAndroidApp = async (
+  payload: any,
+): Promise<StatisticsAndroidAppResponse> => {
   const { from, to, appID } = payload;
   console.log('from', from);
   console.log('to', to);
@@ -26,16 +29,30 @@ export const getStatisticsAndroidApp = async (payload: any) => {
       maxBodyLength: Infinity,
     });
 
-    // console.log('getStatisticsAndroidApp: ', data);
-    return data;
+    console.log('getStatisticsAndroidApp: ', data);
+
+    if (data && typeof data === 'object' && 'data' in data) {
+      return data as StatisticsAndroidAppResponse;
+    }
+    throw new Error('Unexpected response structure');
   } catch (error: any) {
     if (error.code === 'ECONNABORTED') {
-      // console.warn('getStatisticsAndroidApp timeout:', error.message);
       return {
         success: false,
         message: 'Request timeout. Please try again with a smaller date range.',
+        data: [],
+        summary: [],
+        subDetail: [],
+        statistic: [],
       };
     }
-    return { success: false, message: error.message || 'Unknown error' };
+    return {
+      success: false,
+      message: error.message || 'Unknown error',
+      data: [],
+      summary: [],
+      subDetail: [],
+      statistic: [],
+    };
   }
 };

@@ -62,7 +62,7 @@ export function LogsTab({
       <div className="flex items-center justify-between mb-4">
         <div>
           <p className="text-muted-foreground ml-1">
-            Monitor and analyze Android application activities and purchases
+            Logs of Android application purchases
           </p>
         </div>
         <ActionButtons onExport={onExport} onRefresh={onRefresh} />
