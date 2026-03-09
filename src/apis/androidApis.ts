@@ -26,7 +26,6 @@ export const getStatisticsAndroidApp = async (payload: any) => {
       maxBodyLength: Infinity,
     });
 
-    // console.log('getStatisticsAndroidApp: ', data);
     return data;
   } catch (error: any) {
     if (error.code === 'ECONNABORTED') {

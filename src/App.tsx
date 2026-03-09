@@ -3,6 +3,7 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { Layout } from './components/Layout';
 import { NotFound } from './pages/NotFound';
 import { AndroidLog } from './pages/Android';
+import { IosLog } from './pages/iOS';
 
 function App() {
   return (
@@ -55,6 +56,7 @@ function App() {
             }
           />
           <Route path="/android-logs" element={<AndroidLog />} />
+          <Route path="/ios-logs" element={<IosLog />} />
           <Route
             path="/calendar"
             element={

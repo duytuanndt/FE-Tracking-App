@@ -65,6 +65,11 @@ const toolsItems = [
     url: '/android-logs',
     icon: LayoutList,
   },
+  {
+    title: 'iOS Logs',
+    url: '/ios-logs',
+    icon: LayoutList,
+  },
   // {
   //   title: 'Calendar',
   //   url: '/calendar',
