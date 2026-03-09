@@ -1,0 +1,133 @@
+import { getStatisticsIosApp, getIosAppList } from '@/apis/iosApis';
+import { IosAppListParams } from "@/entities/ios";
+import { countryMock } from '@/mocks/countryMock';
+import { useQuery } from '@tanstack/react-query';
+import { useMemo, useState } from 'react';
+
+export const useIos = () => {
+  const [currentPage, setCurrentPage] = useState(1);
+  const [appCodeFilter, setAppCodeFilter] = useState('all');
+  const [countryFilter, setCountryFilter] = useState('all');
+  const [purchaseTypeFilter, setPurchaseTypeFilter] = useState('all');
+  const [startDate, setStartDate] = useState<Date | undefined>(undefined);
+  const [endDate, setEndDate] = useState<Date | undefined>(undefined);
+
+  const payload = useMemo(() => {
+    return {
+      from: new Date(
+        startDate ||
+          new Date(new Date().setDate(new Date().getDate() - 1)).setHours(
+            0,
+            0,
+            0,
+            0,
+          ),
+      ).getTime(),
+      to: new Date(endDate || Date.now()).getTime(),
+      appID: appCodeFilter !== 'all' ? appCodeFilter : '',
+    };
+  }, [startDate, endDate, appCodeFilter]);
+
+  const { data, isLoading, error, refetch } = useQuery({
+    queryKey: ['ios-statistics', payload],
+    queryFn: () => getStatisticsIosApp(payload),
+    enabled: !!payload.from && !!payload.to,
+  });
+
+  const appListParams = useMemo<IosAppListParams>(() => {
+    return {
+      isLive: true,
+      distributor: '',
+      appName: '',
+      appCode: '',
+    };
+  }, []);
+
+  const {
+    data: appListData,
+    isLoading: isAppListLoading,
+    error: appListError,
+    refetch: refetchAppList,
+  } = useQuery({
+    queryKey: ['apps', appListParams],
+    queryFn: () => getIosAppList(appListParams),
+    // If the iOS apps endpoint is not available yet, this can be disabled or updated later.
+    enabled: true,
+  });
+
+  const filteredData: any = useMemo(() => {
+    if (!data || !Array.isArray((data as any)?.data)) return [];
+
+    return ((data as any)?.data ?? []).filter((log: any) => {
+      const resolvedCountryName =
+        countryFilter === 'all'
+          ? null
+          : ((countryMock as Record<string, string>)[
+              countryFilter.toUpperCase()
+            ] ?? countryFilter);
+
+      const matchesCountry =
+        countryFilter === 'all' || log.countryOrRegion === resolvedCountryName;
+      const matchesPurchase =
+        purchaseTypeFilter === 'all' || log.purchase === purchaseTypeFilter;
+      return matchesCountry && matchesPurchase;
+    });
+  }, [data, countryFilter, purchaseTypeFilter]);
+
+  const ITEMS_PER_PAGE = 10;
+  const paginatedData = useMemo(() => {
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    return filteredData.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+  }, [filteredData, currentPage]);
+
+  const totalPages = Math.ceil(filteredData.length / ITEMS_PER_PAGE);
+
+  const handleFilterChange = () => setCurrentPage(1);
+
+  const clearFilters = () => {
+    setAppCodeFilter('all');
+    setCountryFilter('all');
+    setPurchaseTypeFilter('all');
+    setStartDate(undefined);
+    setEndDate(undefined);
+    setCurrentPage(1);
+  };
+
+  const hasActiveFilters: boolean =
+    appCodeFilter !== 'all' ||
+    countryFilter !== 'all' ||
+    purchaseTypeFilter !== 'all' ||
+    !!startDate ||
+    !!endDate;
+
+  return {
+    appCodeFilter,
+    setAppCodeFilter,
+    countryFilter,
+    setCountryFilter,
+    purchaseTypeFilter,
+    setPurchaseTypeFilter,
+    startDate,
+    setStartDate,
+    endDate,
+    setEndDate,
+    currentPage,
+    setCurrentPage,
+    paginatedData,
+    filteredData,
+    totalPages,
+    handleFilterChange,
+    clearFilters,
+    hasActiveFilters,
+    isLoading,
+    error,
+    refetch,
+    data,
+    appListData,
+    isAppListLoading,
+    appListError,
+    refetchAppList,
+    appListQueryKey: ['apps', appListParams],
+  };
+};
+

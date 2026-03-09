@@ -89,7 +89,7 @@ export function LogsTab({
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
-            <CardTitle>Android Log Entries</CardTitle>
+            <CardTitle>Log Entries</CardTitle>
             <div className="text-sm text-muted-foreground">
               Showing {paginatedData.length} of {filteredData.length} entries
               {hasActiveFilters && (

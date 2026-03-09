@@ -123,7 +123,7 @@ export function StatisticsTable({ data, isLoading, subDetail }: StatisticsTableP
                       />
                     </TableCell>
                     <TableCell className="font-medium text-center">
-                      {log.appCode.toString().toUpperCase()}
+                      {log?.appCode?.toString().toUpperCase()}
                     </TableCell>
                     <TableCell className="text-center">{log.appName}</TableCell>
                     <TableCell className="font-mono text-sm text-center">
