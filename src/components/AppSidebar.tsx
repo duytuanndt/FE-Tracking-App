@@ -3,7 +3,6 @@ import {
   Home,
   Settings,
   LayoutList,
-  Plus,
   ChevronUp,
   User2,
   Database,
