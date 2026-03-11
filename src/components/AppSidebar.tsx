@@ -3,9 +3,9 @@ import {
   Home,
   Settings,
   LayoutList,
-  Plus,
   ChevronUp,
   User2,
+  Database,
 } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 
@@ -130,7 +130,7 @@ export function AppSidebar() {
         <SidebarSeparator />
 
         <SidebarGroup>
-          <SidebarGroupLabel>Tools</SidebarGroupLabel>
+          <SidebarGroupLabel>Logs</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {toolsItems.map((item) => (
@@ -153,14 +153,14 @@ export function AppSidebar() {
         <SidebarSeparator />
 
         <SidebarGroup>
-          <SidebarGroupLabel>Quick Actions</SidebarGroupLabel>
+          <SidebarGroupLabel>Resources</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
-                  <Link to="/applications/new">
-                    <Plus />
-                    <span>New Logs</span>
+                  <Link to="/data-collection">
+                    <Database />
+                    <span>I184 Dog Games</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
