@@ -4,6 +4,8 @@ import { Layout } from './components/Layout';
 import { NotFound } from './pages/NotFound';
 import { AndroidLog } from './pages/Android';
 import { IosLog } from './pages/iOS';
+import { DataCollectionPage } from './pages/DataCollection';
+import { DogGameFormPage } from './pages/DataCollection/DogGameFormPage';
 
 function App() {
   return (
@@ -19,6 +21,7 @@ function App() {
               </div>
             }
           />
+          <Route path="/data-collection" element={<DataCollectionPage />} />
           <Route
             path="/applications"
             element={
@@ -84,6 +87,9 @@ function App() {
               </div>
             }
           />
+          <Route path="/data-collection/new" element={<DogGameFormPage mode="create" />} />
+          <Route path="/data-collection/:id/view" element={<DogGameFormPage mode="view" />} />
+          <Route path="/data-collection/:id/edit" element={<DogGameFormPage mode="edit" />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Layout>
