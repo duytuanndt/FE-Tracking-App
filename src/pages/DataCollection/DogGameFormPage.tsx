@@ -4,6 +4,7 @@ import { useForm, useFieldArray } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
+import { useQueryClient } from '@tanstack/react-query';
 
 import {
   Form,
@@ -31,6 +32,7 @@ import {
   useDogGame,
   useUpdateDogGame,
   updateDogGame,
+  updateDogGameImages,
 } from '@/apis/dogGames';
 import { uploadFileToR2 } from '@/apis/r2Upload';
 
@@ -69,6 +71,8 @@ const dogGameSchema = z.object({
         title: z.string().min(1, 'Step title is required'),
         description: z.string().min(1, 'Step description is required'),
         imageUrl: z.string().optional(),
+        // Optional backend identifier for this step (imageStepOrder/_id)
+        stepId: z.string().optional(),
       }),
     )
     .min(1, 'Add at least one step'),
@@ -88,6 +92,7 @@ export function DogGameFormPage({ mode }: DogGameFormPageProps) {
   const { id } = useParams<{ id: string }>();
   const isEdit = mode === 'edit';
   const isView = mode === 'view';
+  const queryClient = useQueryClient();
 
   const [submitIntent, setSubmitIntent] = useState<'draft' | 'publish'>('draft');
   const [isUploading, setIsUploading] = useState(false);
@@ -119,6 +124,7 @@ export function DogGameFormPage({ mode }: DogGameFormPageProps) {
           stepNo: 1,
           title: '',
           description: '',
+          stepId: undefined,
         },
       ],
       tips: '',
@@ -159,12 +165,19 @@ export function DogGameFormPage({ mode }: DogGameFormPageProps) {
         visibleInApp: existingGame.visibleInApp,
         steps:
           existingGame.steps.length > 0
-            ? existingGame.steps
+            ? existingGame.steps.map((step, index) => ({
+              stepNo: step.stepNo ?? index + 1,
+              title: step.title,
+              description: step.description,
+              imageUrl: step.imageUrl,
+              stepId: step.stepId,
+            }))
             : [
               {
                 stepNo: 1,
                 title: '',
                 description: '',
+                stepId: undefined,
               },
             ],
         tips: existingGame.tips ?? '',
@@ -297,16 +310,58 @@ export function DogGameFormPage({ mode }: DogGameFormPageProps) {
       };
 
       // Update game with final URLs
+      const isRemoteGame = existingGame?.source === 'remote';
+
       if (isEdit && gameId) {
-        await updateDogGameMutation(payload);
-        toast.success(
-          submitIntent === 'publish'
-            ? 'Game updated and published'
-            : 'Game updated as draft',
-        );
+        if (isRemoteGame) {
+          // For remote exercises, only sync images via PATCH images endpoint
+          const stepsForPatch = values.steps
+            .map((step, index) => {
+              const stepId = step.stepId;
+              const image = finalStepImageUrls[index];
+              return stepId && image
+                ? {
+                  _id: stepId,
+                  image,
+                }
+                : null;
+            })
+            .filter(
+              (s): s is { _id: string; image: string } => s !== null,
+            );
+
+          await updateDogGameImages(gameId, {
+            image: finalImageUrl,
+            steps: stepsForPatch,
+          });
+
+          // Invalidate lists and detail so DataCollectionPage reloads on return
+          queryClient.invalidateQueries({ queryKey: ['dog-games'] });
+          queryClient.invalidateQueries({ queryKey: ['dog-game', gameId] });
+
+          toast.success(
+            submitIntent === 'publish'
+              ? 'Game images updated and published'
+              : 'Game images updated as draft',
+          );
+        } else {
+          // Local-only games are still updated via local store
+          await updateDogGameMutation(payload);
+          queryClient.invalidateQueries({ queryKey: ['dog-games'] });
+          if (gameId) {
+            queryClient.invalidateQueries({ queryKey: ['dog-game', gameId] });
+          }
+          toast.success(
+            submitIntent === 'publish'
+              ? 'Game updated and published'
+              : 'Game updated as draft',
+          );
+        }
       } else if (gameId) {
-        // For create mode, update the game we just created
+        // For create mode, update the game we just created in the local store
         await updateDogGame(gameId, payload);
+        queryClient.invalidateQueries({ queryKey: ['dog-games'] });
+        queryClient.invalidateQueries({ queryKey: ['dog-game', gameId] });
         toast.success(
           submitIntent === 'publish'
             ? 'Game created and published'
@@ -722,7 +777,7 @@ export function DogGameFormPage({ mode }: DogGameFormPageProps) {
                       <FormItem>
                         <FormLabel>Category Name</FormLabel>
                         <FormControl>
-                          <Input placeholder="Games" {...field} disabled={isView} readOnly={isView} />
+                          <Input placeholder="Games" {...field} disabled={true} readOnly={true} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -730,7 +785,7 @@ export function DogGameFormPage({ mode }: DogGameFormPageProps) {
                   />
 
                   <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                    <FormField
+                    {/* <FormField
                       control={form.control}
                       name="difficulty"
                       render={({ field }) => (
@@ -758,9 +813,9 @@ export function DogGameFormPage({ mode }: DogGameFormPageProps) {
                           <FormMessage />
                         </FormItem>
                       )}
-                    />
+                    /> */}
 
-                    <FormField
+                    {/* <FormField
                       control={form.control}
                       name="ageGroup"
                       render={({ field }) => (
@@ -790,10 +845,10 @@ export function DogGameFormPage({ mode }: DogGameFormPageProps) {
                           <FormMessage />
                         </FormItem>
                       )}
-                    />
+                    /> */}
                   </div>
 
-                  <FormField
+                  {/* <FormField
                     control={form.control}
                     name="durationMinutes"
                     render={({ field }) => (
@@ -817,9 +872,9 @@ export function DogGameFormPage({ mode }: DogGameFormPageProps) {
                         <FormMessage />
                       </FormItem>
                     )}
-                  />
+                  /> */}
 
-                  <FormField
+                  {/* <FormField
                     control={form.control}
                     name="displayOrder"
                     render={({ field }) => (
@@ -843,7 +898,7 @@ export function DogGameFormPage({ mode }: DogGameFormPageProps) {
                         <FormMessage />
                       </FormItem>
                     )}
-                  />
+                  /> */}
 
                   <FormField
                     control={form.control}

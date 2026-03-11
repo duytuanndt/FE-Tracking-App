@@ -7,6 +7,8 @@ export interface DogGameStep {
   title: string;
   description: string;
   imageUrl?: string;
+  // Optional backend identifier for the step/imageStepOrder entry
+  stepId?: string;
 }
 
 export interface DogGame {
@@ -45,6 +47,11 @@ export type DogGameInput = Omit<
   DogGame,
   'id' | 'createdAt' | 'updatedAt' | 'source'
 >;
+
+export interface DogGameStepImageUpdate {
+  _id: string;
+  image: string;
+}
 
 // --- Local-only store for games created via admin UI ---
 
@@ -156,6 +163,9 @@ function mapExerciseToDogGame(raw: any): DogGame {
           title: `Step ${index + 1}`,
           description: s.description ?? '',
           imageUrl: s.image ?? s.imageUrl ?? undefined,
+          stepId: typeof s._id === 'string' || typeof s.id === 'string'
+            ? (s._id ?? s.id)
+            : undefined,
         }))
       : Array.isArray(raw.steps) && raw.steps.length > 0
         ? raw.steps.map((s: any, index: number) => ({
@@ -176,6 +186,10 @@ function mapExerciseToDogGame(raw: any): DogGame {
                 ['media', 'url'],
                 undefined,
               ),
+            stepId:
+              typeof s._id === 'string' || typeof s.id === 'string'
+                ? (s._id ?? s.id)
+                : undefined,
           }))
         : [];
 
@@ -355,6 +369,41 @@ export async function createDogGame(
 
   localDogGamesDb = [...localDogGamesDb, newGame];
   return newGame;
+}
+
+export async function updateDogGameImages(
+  id: string,
+  input: { image: string; steps: DogGameStepImageUpdate[] },
+): Promise<void> {
+  //`https://dogtraining-api.fuentechsoft.com
+  const res = await fetch(
+    `https://dogtraining-api.fuentechsoft.com/api/v1/exercises/${id}/images`,
+    {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+      },
+      body: JSON.stringify({
+        image: input.image,
+        steps: input.steps,
+      }),
+    },
+  );
+
+  if (!res.ok) {
+    let errorText = '';
+    try {
+      errorText = await res.text();
+    } catch {
+      // ignore
+    }
+    throw new Error(
+      `Failed to update exercise images: ${res.status}${
+        errorText ? ` - ${errorText}` : ''
+      }`,
+    );
+  }
 }
 
 export async function updateDogGame(

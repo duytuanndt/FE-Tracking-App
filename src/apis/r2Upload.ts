@@ -12,6 +12,8 @@ export interface PreSignedUrlRequest {
 export interface PreSignedUrlResponse {
   signedUrl: string;
   url?: string; // Final URL after upload (if provided by backend)
+  // Optional key for the object path inside the assets bucket (e.g. games/abc.jpg)
+  key?: string;
 }
 
 /**
@@ -23,7 +25,7 @@ export async function getPreSignedUrl(
   fileName: string,
 ): Promise<PreSignedUrlResponse> {
   const response = await fetch(
-    'http://localhost:2226/api/v1/products/pre-signed-url',
+    'https://dogtraining-api.fuentechsoft.com/api/v1/products/pre-signed-url',
     {
       method: 'POST',
       headers: {
@@ -49,7 +51,30 @@ export async function getPreSignedUrl(
   return {
     signedUrl: data.signedUrl || data.signed_url || data.url,
     url: data.url || data.finalUrl || data.final_url,
+    key: data.key,
   };
+}
+
+const DEFAULT_ASSETS_BASE_URL = 'https://dogstranslator-assets.foxcode.info/';
+
+// Resolve the public assets base URL from env/config with a safe default.
+function getAssetsBaseUrl(): string {
+  // Prefer Vite-style env if available
+  const viteEnv =
+    typeof import.meta !== 'undefined' &&
+    (import.meta as any).env &&
+    (import.meta as any).env.VITE_ASSETS_BASE_URL;
+
+  // Fallback to Node-style env if present
+  const nodeEnv =
+    typeof process !== 'undefined' &&
+    (process as any).env &&
+    (process as any).env.VITE_ASSETS_BASE_URL;
+
+  const base = (viteEnv || nodeEnv || DEFAULT_ASSETS_BASE_URL) as string;
+
+  // Ensure the base ends with a single slash
+  return base.endsWith('/') ? base : `${base}/`;
 }
 
 /**
@@ -65,7 +90,6 @@ export async function uploadToR2(
     body: file,
     headers: {
       'Content-Type': file.type,
-      'Access-Control-Allow-Origin': '*',
     },
   });
 
@@ -93,11 +117,11 @@ export async function uploadFileToR2(
   file: File,
 ): Promise<string> {
   // Get pre-signed URL
-  console.log('productId', productId);
-  console.log('file.type', file.type);
-  console.log('file.name', file.name);
-  console.log('file', file);
-  const { signedUrl, url: finalUrl } = await getPreSignedUrl(
+  // console.log('productId', productId);
+  // console.log('file.type', file.type);
+  // console.log('file.name', file.name);
+  // console.log('file', file);
+  const { signedUrl, url: finalUrl, key } = await getPreSignedUrl(
     productId,
     file.type,
     file.name,
@@ -106,6 +130,13 @@ export async function uploadFileToR2(
   // Upload file to R2
   const uploadedUrl = await uploadToR2(signedUrl, file);
 
-  // Return final URL (either from backend response or constructed from signed URL)
+  // If backend returned a key, construct the public CDN URL using the assets base
+  if (key) {
+    const base = getAssetsBaseUrl();
+    const normalizedKey = key.startsWith('/') ? key.slice(1) : key;
+    return `${base}${normalizedKey}`;
+  }
+
+  // Otherwise, prefer backend final URL if provided, then fall back to uploaded URL
   return finalUrl || uploadedUrl;
 }
