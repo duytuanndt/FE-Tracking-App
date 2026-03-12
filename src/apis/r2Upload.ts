@@ -7,6 +7,8 @@ export interface PreSignedUrlRequest {
   productId: string;
   contentType: string;
   fileName: string;
+  prefix?: string;
+  stepName?: string;
 }
 
 export interface PreSignedUrlResponse {
@@ -23,6 +25,8 @@ export async function getPreSignedUrl(
   productId: string,
   contentType: string,
   fileName: string,
+  prefix?: string,
+  stepName?: string,
 ): Promise<PreSignedUrlResponse> {
   const response = await fetch(
     'https://dogtraining-api.fuentechsoft.com/api/v1/products/pre-signed-url',
@@ -36,6 +40,8 @@ export async function getPreSignedUrl(
         productId,
         contentType,
         fileName,
+        prefix,
+        stepName,
       } as PreSignedUrlRequest),
     },
   );
@@ -115,6 +121,8 @@ export async function uploadToR2(
 export async function uploadFileToR2(
   productId: string,
   file: File,
+  prefix?: string,
+  stepName?: string,
 ): Promise<string> {
   // Get pre-signed URL
   // console.log('productId', productId);
@@ -125,6 +133,8 @@ export async function uploadFileToR2(
     productId,
     file.type,
     file.name,
+    prefix,
+    stepName,
   );
 
   // Upload file to R2

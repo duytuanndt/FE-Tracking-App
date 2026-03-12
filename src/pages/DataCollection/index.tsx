@@ -49,7 +49,7 @@ export function DataCollectionPage() {
           </p>
         </div>
         <Button asChild>
-          <Link to="/data-collection/new">Add New Game</Link>
+          <Link to="/dog-games/new">Add New Game</Link>
         </Button>
       </div>
 
@@ -92,7 +92,7 @@ export function DataCollectionPage() {
         isLoading={isLoading || isFetching}
         games={data?.items ?? []}
         onRefresh={refetch}
-        onEdit={(id) => navigate(`/data-collection/${id}/edit`)}
+        onEdit={(id) => navigate(`/dog-games/${id}/edit`)}
       />
 
       <TablePagination

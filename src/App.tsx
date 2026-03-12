@@ -6,6 +6,8 @@ import { AndroidLog } from './pages/Android';
 import { IosLog } from './pages/iOS';
 import { DataCollectionPage } from './pages/DataCollection';
 import { DogGameFormPage } from './pages/DataCollection/DogGameFormPage';
+import { DogTrainingLessonsPage } from './pages/DataCollection/DogTrainingLessonsPage';
+import { DogTrainingLessonDetailPage } from './pages/DataCollection/DogTrainingLessonDetailPage';
 
 function App() {
   return (
@@ -21,7 +23,7 @@ function App() {
               </div>
             }
           />
-          <Route path="/data-collection" element={<DataCollectionPage />} />
+          <Route path="/dog-games" element={<DataCollectionPage />} />
           <Route
             path="/applications"
             element={
@@ -87,9 +89,14 @@ function App() {
               </div>
             }
           />
-          <Route path="/data-collection/new" element={<DogGameFormPage mode="create" />} />
-          <Route path="/data-collection/:id/view" element={<DogGameFormPage mode="view" />} />
-          <Route path="/data-collection/:id/edit" element={<DogGameFormPage mode="edit" />} />
+          <Route path="/dog-games/new" element={<DogGameFormPage mode="create" />} />
+          <Route path="/dog-games/:id/view" element={<DogGameFormPage mode="view" />} />
+          <Route path="/dog-games/:id/edit" element={<DogGameFormPage mode="edit" />} />
+          <Route path="/dog-lessons" element={<DogTrainingLessonsPage />} />
+          <Route
+            path="/dog-lessons/:lessonId/view"
+            element={<DogTrainingLessonDetailPage />}
+          />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Layout>

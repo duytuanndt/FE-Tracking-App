@@ -89,7 +89,7 @@ export function DogGamesTable({
                         size="sm"
                         asChild
                       >
-                        <Link to={`/data-collection/${game.id}/view`}>View</Link>
+                        <Link to={`/dog-games/${game.id}/view`}>View</Link>
                       </Button>
                       <Button
                         variant="default"

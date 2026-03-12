@@ -383,7 +383,7 @@ export function DogGameFormPage({ mode }: DogGameFormPageProps) {
       coverImageFileRef.current = null;
       stepImageFilesRef.current.clear();
 
-      navigate('/data-collection');
+      navigate('/dog-games');
     } catch (err) {
       const message =
         err instanceof Error ? err.message : 'Something went wrong';
@@ -394,7 +394,7 @@ export function DogGameFormPage({ mode }: DogGameFormPageProps) {
   };
 
   const handleCancel = () => {
-    navigate('/data-collection');
+    navigate('/dog-games');
   };
 
   return (
@@ -430,7 +430,7 @@ export function DogGameFormPage({ mode }: DogGameFormPageProps) {
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => navigate(`/data-collection/${id}/edit`)}
+                onClick={() => navigate(`/dog-games/${id}/edit`)}
               >
                 Edit
               </Button>
