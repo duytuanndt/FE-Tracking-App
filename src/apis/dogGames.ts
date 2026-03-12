@@ -303,7 +303,7 @@ export async function getDogGames(
     const total = items.length;
     const start = (page - 1) * limit;
     const paged = items.slice(start, start + limit);
-    console.log('paged', paged);
+    // console.log('paged', paged);
 
     return { items: paged, total };
   } catch (error) {

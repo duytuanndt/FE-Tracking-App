@@ -158,9 +158,17 @@ export function AppSidebar() {
             <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
-                  <Link to="/data-collection">
+                  <Link to="/dog-games">
                     <Database />
                     <span>I184 Dog Games</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <Link to="/dog-lessons">
+                    <Database />
+                    <span>I184 Dog Lessons</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
