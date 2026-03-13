@@ -281,6 +281,10 @@ export interface TrainingLessonImagesUpdateInput {
     stepId: string;
     imageUrl: string;
   }[];
+  /**
+   * Optional updated description for the lesson, used on the detail page.
+   */
+  originalDescription?: string;
 }
 
 // --- Helpers ---
@@ -477,6 +481,41 @@ export async function getTrainingLessonById(
   return normalizeLesson(raw, language);
 }
 
+export async function updateTrainingLessonStatus(
+  lessonId: string,
+  status: TrainingLessonStatus,
+): Promise<void> {
+  if (!lessonId) {
+    throw new Error('lessonId is required to update lesson status');
+  }
+
+  const res = await fetch(
+    `https://dogtraining-api.fuentechsoft.com/api/v1/training/lesson/${lessonId}/status`,
+    {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+      },
+      body: JSON.stringify({ status }),
+    },
+  );
+
+  if (!res.ok) {
+    let errorText = '';
+    try {
+      errorText = await res.text();
+    } catch {
+      // ignore
+    }
+    throw new Error(
+      `Failed to update lesson status: ${res.status}${
+        errorText ? ` - ${errorText}` : ''
+      }`,
+    );
+  }
+}
+
 export async function updateTrainingLessonImages(
   lessonId: string,
   input: TrainingLessonImagesUpdateInput,
@@ -503,6 +542,9 @@ export async function updateTrainingLessonImages(
           stepId: s.stepId,
           imageUrl: s.imageUrl,
         })),
+        ...(typeof input.originalDescription === 'string'
+          ? { originalDescription: input.originalDescription }
+          : {}),
       }),
     },
   );
@@ -555,6 +597,23 @@ export function useUpdateTrainingLessonImages(lessonId: string) {
   return useMutation({
     mutationFn: (input: TrainingLessonImagesUpdateInput) =>
       updateTrainingLessonImages(lessonId, input),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ['lesson-detail', lessonId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['training-lessons'],
+      });
+    },
+  });
+}
+
+export function useUpdateTrainingLessonStatus(lessonId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (status: TrainingLessonStatus) =>
+      updateTrainingLessonStatus(lessonId, status),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ['lesson-detail', lessonId],

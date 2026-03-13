@@ -7,8 +7,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import {
+  TrainingLessonStatus,
   useTrainingLesson,
   useUpdateTrainingLessonImages,
+  useUpdateTrainingLessonStatus,
 } from '@/apis/dogTrainingLessonsApi';
 import { uploadFileToR2 } from '@/apis/r2Upload';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -46,12 +48,21 @@ export function DogTrainingLessonDetailPage() {
     isPending: isUpdatingImages,
   } = useUpdateTrainingLessonImages(lessonId ?? '');
 
+  const {
+    mutateAsync: updateStatus,
+    isPending: isUpdatingStatus,
+  } = useUpdateTrainingLessonStatus(lessonId ?? '');
+
   const [coverImageUrl, setCoverImageUrl] = useState<string | undefined>();
   const [stepImageUrls, setStepImageUrls] = useState<Record<string, string>>({});
+  const [description, setDescription] = useState('');
+  const [status, setStatus] = useState<TrainingLessonStatus>('New');
 
   useEffect(() => {
     if (lesson) {
       setCoverImageUrl(lesson.imageUrl);
+      setDescription(lesson.description ?? '');
+      setStatus(lesson.status);
       const initial: Record<string, string> = {};
       lesson.steps.forEach((step, index) => {
         // console.log('step', step);
@@ -66,7 +77,7 @@ export function DogTrainingLessonDetailPage() {
     }
   }, [lesson]);
 
-  const isSaving = isUpdatingImages;
+  const isSaving = isUpdatingImages || isUpdatingStatus;
 
   const stepKeyOrder = useMemo(() => {
     if (!lesson) return [];
@@ -77,7 +88,7 @@ export function DogTrainingLessonDetailPage() {
     navigate('/dog-lessons');
   };
 
-  const handleSaveImages = async () => {
+  const handleSaveChanges = async () => {
     if (!lesson || !lessonId) return;
 
     try {
@@ -136,20 +147,32 @@ export function DogTrainingLessonDetailPage() {
         }
       }
 
-      if (!finalCoverUrl && finalStepEntries.length === 0) {
-        toast.error('Nothing to update. Please upload at least one image.');
+      if (!finalCoverUrl && finalStepEntries.length === 0 && description === lesson.description && status === lesson.status) {
+        toast.error('Nothing to update. Please change status, description, or upload at least one image.');
         return;
       }
 
-      await updateImages({
-        imageUrl: finalCoverUrl || lesson.imageUrl || '',
-        steps: finalStepEntries,
-      });
+      const updates: Promise<unknown>[] = [];
+
+      // Always send description through the images API so it stays in sync with the detail page.
+      updates.push(
+        updateImages({
+          imageUrl: finalCoverUrl || lesson.imageUrl || '',
+          steps: finalStepEntries,
+          originalDescription: description || lesson.description || '',
+        }),
+      );
+
+      if (status !== lesson.status) {
+        updates.push(updateStatus(status));
+      }
+
+      await Promise.all(updates);
 
       // console.log("finalCoverUrl", finalCoverUrl);
       // console.log("finalStepEntries", finalStepEntries);
 
-      toast.success('Lesson images updated successfully.');
+      toast.success('Lesson updated successfully.');
       navigate('/dog-lessons');
     } catch (err) {
       const message =
@@ -213,10 +236,10 @@ export function DogTrainingLessonDetailPage() {
           </Button>
           <Button
             type="button"
-            onClick={handleSaveImages}
+            onClick={handleSaveChanges}
             disabled={isSaving}
           >
-            {isSaving ? 'Saving…' : 'Save Images'}
+            {isSaving ? 'Saving…' : 'Save Changes'}
           </Button>
         </div>
       </div>
@@ -235,9 +258,8 @@ export function DogTrainingLessonDetailPage() {
               <div className="space-y-2">
                 <label className="text-sm font-medium">Description</label>
                 <Textarea
-                  value={lesson.description}
-                  readOnly
-                  disabled
+                  value={description}
+                  onChange={(event) => setDescription(event.target.value)}
                   rows={4}
                 />
               </div>
@@ -380,7 +402,22 @@ export function DogTrainingLessonDetailPage() {
               </div>
               <div>
                 <span className="font-medium text-foreground">Status:</span>{' '}
-                {lesson.status}
+                <select
+                  className="mt-1 rounded-md border bg-background px-2 py-1 text-xs"
+                  value={status}
+                  disabled={isSaving}
+                  onChange={(event) =>
+                    setStatus(event.target.value as TrainingLessonStatus)
+                  }
+                >
+                  <option value="New">New</option>
+                  <option value="Published">Published</option>
+                  <option value="Archived">Archived</option>
+                  <option value="Draft">Draft</option>
+                  <option value="Deleted">Deleted</option>
+                  <option value="Locked">Locked</option>
+                  <option value="Hidden">Hidden</option>
+                </select>
               </div>
               <div>
                 <span className="font-medium text-foreground">Language:</span>{' '}
