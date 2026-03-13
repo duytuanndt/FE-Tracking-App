@@ -160,7 +160,7 @@ export function AppSidebar() {
                 <SidebarMenuButton asChild>
                   <Link to="/dog-games">
                     <Database />
-                    <span>I184 Dog Games</span>
+                    <span>I186 Dog Games</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -168,7 +168,7 @@ export function AppSidebar() {
                 <SidebarMenuButton asChild>
                   <Link to="/dog-lessons">
                     <Database />
-                    <span>I184 Dog Lessons</span>
+                    <span>I186 Dog Lessons</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
