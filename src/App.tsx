@@ -8,6 +8,9 @@ import { DataCollectionPage } from './pages/DataCollection';
 import { DogGameFormPage } from './pages/DataCollection/DogGameFormPage';
 import { DogTrainingLessonsPage } from './pages/DataCollection/DogTrainingLessonsPage';
 import { DogTrainingLessonDetailPage } from './pages/DataCollection/DogTrainingLessonDetailPage';
+import { GithubStatsPage } from './pages/Github/GithubStats';
+import { GithubMembersPage } from './pages/Github/MembersPage';
+import { GithubRepositoriesPage } from './pages/Github/RepositoriesPage';
 
 function App() {
   return (
@@ -62,6 +65,10 @@ function App() {
           />
           <Route path="/android-logs" element={<AndroidLog />} />
           <Route path="/ios-logs" element={<IosLog />} />
+          <Route path="/github/members" element={<GithubMembersPage />} />
+          <Route path="/github/repositories" element={<GithubRepositoriesPage />} />
+          <Route path="/github/commits" element={<GithubStatsPage />} />
+          {/* <Route path="/github-stats" element={<GithubStatsPage />} /> */}
           <Route
             path="/calendar"
             element={

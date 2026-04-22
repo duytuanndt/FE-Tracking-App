@@ -1,8 +1,8 @@
 import {
   BarChart3,
   Home,
-  Settings,
   LayoutList,
+  Github,
   ChevronUp,
   User2,
   Database,
@@ -80,6 +80,24 @@ const toolsItems = [
   //   url: '/notifications',
   //   icon: Bell,
   // },
+];
+
+const githubItems = [
+  {
+    title: 'Members',
+    url: '/github/members',
+    icon: User2,
+  },
+  {
+    title: 'Repositories',
+    url: '/github/repositories',
+    icon: Database,
+  },
+  {
+    title: 'Commits',
+    url: '/github/commits',
+    icon: Github,
+  },
 ];
 
 export function AppSidebar() {
@@ -172,14 +190,29 @@ export function AppSidebar() {
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <Link to="/settings">
-                    <Settings />
-                    <span>Settings</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarSeparator />
+
+        <SidebarGroup>
+          <SidebarGroupLabel>Githubs</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {githubItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton
+                    asChild
+                    isActive={location.pathname === item.url}
+                  >
+                    <Link to={item.url}>
+                      <item.icon />
+                      <span>{item.title}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
